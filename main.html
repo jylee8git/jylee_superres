@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script type="text/javascript" src="SimpleImage.js"></script>
+<link rel="stylesheet" href="styles.css">
+<h1>Morning Sharing </h1>
+
+<div padding-left: 0
+padding-right: 0
+margin-left: auto
+margin-right: auto
+display: block>
+
+
+<div class="center">
+    <canvas class="img_in" id="image_input">Ori Image</canvas>
+    <canvas class="img_blur" id = "image_blur">Blurred Image</canvas>
+    <canvas class="img_out" id="image_output">Sharper Image</canvas>
+</div>
+
+<p>
+    <input type="file" multiple="false" accept="image/*" id="myimg"> 
+    <button id="SR">Sharpen image</button>
+</p>
+
+</html>
+
+<script>
+    var model;
+    async function load_model(){
+    model_file = "https://raw.githubusercontent.com/jylee8git/jylee_SR_unet/main/model.json";
+
+    model = await tf.loadLayersModel(model_file);
+    console.log("model loaded");
+    }
+
+    const sizing = 256;
+    const canvas1 = document.getElementById("image_input");
+    const canvas2 = document.getElementById("image_output");
+    const canvas3 = document.getElementById("image_blur")
+    const file = document.getElementById("myimg");
+    const button = document.getElementById("SR");
+    const ctx1 = canvas1.getContext("2d");
+    const ctx2 = canvas2.getContext("2d");
+    const ctx3 = canvas3.getContext("2d");
+    canvas1.height = sizing; 
+    canvas1.width = sizing;
+    canvas2.height = sizing; 
+    canvas2.width = sizing;
+    canvas3.height = sizing; 
+    canvas3.width = sizing;
+    var img_array;
+    var img = new Image();
+    var img_prediction  = new Image();
+    var image_output = new Image();
+    var image_blurred = new Image();
+
+    load_model();
+
+    file.onchange = function upload(){
+        img.src = URL.createObjectURL(file.files[0]);
+        image_blurred.src = URL.createObjectURL(file.files[0]);
+        img.onload = function(){
+            img.height = canvas1.height;
+            img.width = canvas1.width;
+            canvas1.src = ctx1.drawImage(img,0,0,img.height,img.width);
+           // img_array = tf.browser.fromPixels(canvas1);
+            //img_prediction = model_prediction(img_array);
+            //image_output = tf.browser.toPixels(img_prediction, canvas2);
+            //canvas2.src = ctx2.drawImage(img_prediction,0,0,img.height,img.width);
+            image_blurred.height = canvas3.height;
+            image_blurred.width = canvas3.width;
+            ctx3.filter = "blur(1.5px)";
+            canvas3.src = ctx3.drawImage(image_blurred,0,0,image_blurred.height,image_blurred.width);
+        }
+
+    }
+    
+    button.onclick = function model_prediction(){
+        img_array = tf.browser.fromPixels(canvas3);
+        img_array = img_array.cast("float32");
+        img_array = img_array.reshape([1,sizing,sizing,3]);
+        img_prediction = model.predict(img_array);
+
+        img_prediction = img_prediction.reshape([sizing,sizing,3]);
+
+
+        tf.browser.toPixels(img_prediction, canvas2);
+        //image_output = tf.browser.toPixels(img_prediction, canvas2);
+        //canvas2.src = ctx2.drawImage(image_output,0,0,img.height,img.width);
+
+    }
+
+
+</script>
+</html>

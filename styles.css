@@ -1,0 +1,20 @@
+.img_in {
+    border: 5px solid;
+    flex: auto;
+  }
+
+.img_out{
+    border: 5px solid;
+    flex: auto;
+}
+
+.img_blur{
+    border: 5px solid;
+    flex: auto;
+}
+
+.center{
+    margin: auto;
+    width: auto;
+    padding: 10px;
+}
